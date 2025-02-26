@@ -13,28 +13,38 @@
 </head>
 <body class="bg-gradient-to-br from-gray-900 to-black text-white flex flex-col items-center justify-center h-screen mt-10">
 
+    <!-- Loading Screen (Initially Visible) -->
+    <div id="loading-screen" class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white">
+        <h2>Loading... Waiting for Black to join...</h2>
+    </div>
+
     <div class="text-center mb-6">
         <h1 class="text-4xl font-bold text-yellow-400">♟️ Play Chess Online ♞</h1>
         <p class="text-gray-300 text-sm mt-1">Challenge your friends & improve your chess skills!</p>
     </div>
+
     <div class="role-container">
         <span id="player-role">Waiting for role...</span>
     </div>
+
     <div class="chessBoard bg-gray-600 w-[min(90vw,90vh)] max-w-[600px] aspect-square rounded-lg shadow-lg p-2">
     </div>
-<div id="gameOverPopup" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
-bg-black/10 backdrop-blur-lg text-white p-6 rounded-lg shadow-lg hidden text-center">
-<h2 class="text-2xl font-bold">Game Over</h2>
-<p id="gameOverMessage" class="mt-2 text-lg"></p>
-<button onclick="closePopup()" class="mt-4 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg">OK</button>
-</div>
-<div id="error-message" class="hidden fixed top-5 right-5 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 transition-all duration-300">
-    Invalid Move!
-</div>
+
+    <div id="gameOverPopup" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+        bg-black/10 backdrop-blur-lg text-white p-6 rounded-lg shadow-lg hidden text-center">
+        <h2 class="text-2xl font-bold">Game Over</h2>
+        <p id="gameOverMessage" class="mt-2 text-lg"></p>
+        <button onclick="closePopup()" class="mt-4 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg">OK</button>
+    </div>
+
+    <div id="error-message" class="hidden fixed top-5 right-5 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 transition-all duration-300">
+        Invalid Move!
+    </div>
 
     <footer class="mt-6 text-gray-400 text-sm">
         Developed by <span class="text-yellow-400">Maulik Kanzariya</span> | want to see <a href="https://github.com/kanzariya-maulik/Chess.Js" class="underline text-blue-400">Source Code</a> ?
     </footer>
+
     <script src="/js/ChessLogic.js"></script>
 </body>
 </html>

@@ -5,10 +5,9 @@ const boardElement = document.querySelector('.chessBoard');
 
 let draggedPiece = null;
 let sourceSquare = null;
-let playerRole = null; 
+let playerRole = null;
 
 const renderBoard = () => {
-
     const board = new chess.board();
     boardElement.innerHTML = "";
 
@@ -87,7 +86,6 @@ const handleMove = (source, target) => {
     socket.emit("move", move);
 };
 
-
 const getPieceUnicode = (piece) => {
     if (!piece) return "";
 
@@ -112,18 +110,18 @@ socket.on("spectatorRole", function () {
 });
 
 function updateRoleDisplay(role) {
+    const loadingScreen = document.getElementById("loading-screen");
     const roleDisplay = document.getElementById("player-role");
-    let str = `You are playing as: ${role === "w" ? "⚪ White" : ""}`;
-    if(role == "w"){
-        str=`You are playing as: ⚪ White`
-    }else if (role == "b"){
-        str = `You are playing as: ⚫ Black`
-    }else{
-        str= "You are Spectoring👀.<br>Stay Tuned 🎵 when ever players get disconnected we connect you in game♟️";
-    }
-    roleDisplay.innerHTML = str;
-}
 
+    if (role === "waiting") {
+        loadingScreen.style.display = "flex";  // Show loading screen
+        roleDisplay.innerHTML = "Waiting for Black to join...";
+    } else {
+        loadingScreen.style.display = "none";  // Hide loading screen
+        let str = `You are playing as: ${role === "w" ? "⚪ White" : "⚫ Black"}`;
+        roleDisplay.innerHTML = str;
+    }
+}
 
 socket.on("boardState", function (fen) {
     chess.load(fen);
@@ -139,28 +137,27 @@ socket.on("gameOver", (result) => {
     document.getElementById("gameOverMessage").innerText = result;
     document.getElementById("gameOverPopup").classList.remove("hidden");
 });
+
 function closePopup() {
     document.getElementById("gameOverPopup").classList.add("hidden");
     location.reload();
 }
 
-socket.on("invalidMove",function(result){
-        console.log(result);
+socket.on("invalidMove", function (result) {
+    console.log(result);
 });
 
-socket.on("error", function(error) {
+socket.on("error", function (error) {
     showError(error.message || "Invalid Move!");
 });
 
 function showError(message) {
     const errorDiv = document.getElementById("error-message");
-    errorDiv.textContent = "Invalid Move";
+    errorDiv.textContent = message;
     
-    // Show error message with animation
     errorDiv.classList.remove("hidden", "opacity-0");
     errorDiv.classList.add("opacity-100");
 
-    // Hide after 3 seconds
     setTimeout(() => {
         errorDiv.classList.add("opacity-0");
         setTimeout(() => errorDiv.classList.add("hidden"), 300);
@@ -172,7 +169,7 @@ socket.on("playerDisconnected", (message) => {
 });
 
 socket.on("allowReset", () => {
-    if (!playerRole) { // Only spectators get the reset button
+    if (!playerRole) {
         document.querySelector(".disconnect-popup").innerHTML += `
             <button onclick="resetGame()">Reset Game</button>
         `;
