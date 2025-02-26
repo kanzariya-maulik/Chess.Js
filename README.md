@@ -4,6 +4,9 @@ Welcome to the **Online Chess Game**! 🏆 Play chess with your friends or spect
 
 ---
 
+Note That It Is Only Playable On PC or Laptops
+
+---
 ## 🌟 Features
 
 ✅ **Real-time Multiplayer Chess** – Play against another player instantly!  
