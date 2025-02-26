@@ -117,9 +117,11 @@ function updateRoleDisplay(role) {
         loadingScreen.style.display = "flex";  // Show loading screen
         roleDisplay.innerHTML = "Waiting for Black to join...";
     } else {
-        loadingScreen.style.display = "none";  // Hide loading screen
-        let str = `You are playing as: ${role === "w" ? "⚪ White" : "⚫ Black"}`;
-        roleDisplay.innerHTML = str;
+        loadingScreen.style.display = "none";
+        let str = `You are playing as: ${
+            role === "w" ? "⚪ White" : role === "b" ? "⚫ Black" : "👀 Spectator"
+          }`;
+          roleDisplay.innerHTML = str;
     }
 }
 
