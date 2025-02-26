@@ -5,12 +5,11 @@ const boardElement = document.querySelector('.chessBoard');
 
 let draggedPiece = null;
 let sourceSquare = null;
-let playerRole = null; // 'w' or 'b'
+let playerRole = null; 
 
 const renderBoard = () => {
-    console.log("♟ Rendering board...");
 
-    const board = chess.board();
+    const board = new chess.board();
     boardElement.innerHTML = "";
 
     board.forEach((row, rowIndex) => {
@@ -29,40 +28,29 @@ const renderBoard = () => {
                 pieceElement.classList.add("piece", square.color === "w" ? "white" : "black");
                 pieceElement.innerText = getPieceUnicode(square);
 
-                // ✅ Fix: Ensure draggable pieces match playerRole correctly
                 if (playerRole && playerRole.toLowerCase() === square.color) {
                     pieceElement.draggable = true;
-                    console.log(`✅ Draggable piece: ${square.type} at (${rowIndex}, ${squareIndex})`);
-
                     pieceElement.addEventListener("dragstart", (e) => {
-                        console.log(`🎯 Drag started: ${square.type} at (${rowIndex}, ${squareIndex})`);
                         draggedPiece = pieceElement;
                         sourceSquare = { row: rowIndex, col: squareIndex };
-                        e.dataTransfer.setData("text/plain", ""); // Required for Firefox
+                        e.dataTransfer.setData("text/plain", "");
                     });
 
                     pieceElement.addEventListener("dragend", () => {
-                        console.log(`⏹ Drag ended: ${square.type} at (${rowIndex}, ${squareIndex})`);
                         draggedPiece = null;
                         sourceSquare = null;
                     });
-                } else {
-                    console.log(`🚫 Non-draggable piece: ${square.type} at (${rowIndex}, ${squareIndex})`);
                 }
 
                 squareElement.appendChild(pieceElement);
             }
 
-            // 🔹 Allow dropping pieces
             squareElement.addEventListener("dragover", (e) => {
                 e.preventDefault();
-                console.log(`↔ Dragging over: (${squareElement.dataset.row}, ${squareElement.dataset.col})`);
             });
 
-            // 🔹 Handle drop event
             squareElement.addEventListener("drop", (e) => {
                 e.preventDefault();
-                console.log(`📩 Drop detected on: (${squareElement.dataset.row}, ${squareElement.dataset.col})`);
 
                 if (draggedPiece && sourceSquare) {
                     const targetSquare = {
@@ -70,8 +58,6 @@ const renderBoard = () => {
                         col: parseInt(squareElement.dataset.col),
                     };
                     handleMove(sourceSquare, targetSquare);
-                } else {
-                    console.log("⚠ Drop ignored: No piece was dragged.");
                 }
             });
 
@@ -81,52 +67,138 @@ const renderBoard = () => {
 };
 
 const handleMove = (source, target) => {
+    let fromCol = String.fromCharCode(97 + source.col);
+    let fromRow = 8 - source.row;
+    
+    let toCol = String.fromCharCode(97 + target.col);
+    let toRow = 8 - target.row;
+
+    let promotion = "";
+    if ((fromRow === 7 && toRow === 8) || (fromRow === 2 && toRow === 1)) {
+        promotion = "q";
+    }
+
     const move = {
-        from: `${String.fromCharCode(97 + source.col)}${8 - source.row}`,
-        to: `${String.fromCharCode(97 + target.col)}${8 - target.row}`,
-        promotion: "q", // Always promote to queen (simplified)
+        from: `${fromCol}${fromRow}`,
+        to: `${toCol}${toRow}`,
+        ...(promotion && { promotion }),
     };
-    console.log("♞ Sending move:", move);
+
     socket.emit("move", move);
 };
+
 
 const getPieceUnicode = (piece) => {
     if (!piece) return "";
 
     const unicodePieces = {
-        p: "♙", r: "♖", n: "♘", b: "♗", q: "♕", k: "♔", // White pieces
-        P: "♟", R: "♜", N: "♞", B: "♝", Q: "♛", K: "♚"  // Black pieces
+        p: "♙", r: "♖", n: "♘", b: "♗", q: "♕", k: "♔",
+        P: "♟", R: "♜", N: "♞", B: "♝", Q: "♛", K: "♚"
     };
 
     return unicodePieces[piece.type] || "";
 };
 
-// 🔹 Listen for role assignment
 socket.on("playerRole", function (role) {
-    playerRole = role.toLowerCase(); // Ensure lowercase ('w' or 'b')
-    console.log(`🎭 Player role assigned: ${playerRole.toUpperCase()}`);
+    playerRole = role.toLowerCase();
+    updateRoleDisplay(playerRole);
     renderBoard();
 });
 
 socket.on("spectatorRole", function () {
-    playerRole = null; // Spectators can't move pieces
-    console.log("👀 Spectator mode activated.");
+    playerRole = null;
+    updateRoleDisplay("Spectator");
     renderBoard();
 });
 
-// 🔹 Update board state
+function updateRoleDisplay(role) {
+    const roleDisplay = document.getElementById("player-role");
+    let str = `You are playing as: ${role === "w" ? "⚪ White" : ""}`;
+    if(role == "w"){
+        str=`You are playing as: ⚪ White`
+    }else if (role == "b"){
+        str = `You are playing as: ⚫ Black`
+    }else{
+        str= "You are Spectoring👀.<br>Stay Tuned 🎵 when ever players get disconnected we connect you in game♟️";
+    }
+    roleDisplay.innerHTML = str;
+}
+
+
 socket.on("boardState", function (fen) {
     chess.load(fen);
-    console.log("📜 Board updated to FEN:", fen);
     renderBoard();
 });
 
-// 🔹 Handle move from other players
 socket.on("move", function (move) {
-    console.log("🔄 Move received:", move);
     chess.move(move);
     renderBoard();
 });
 
-// 🚀 Initial render
+socket.on("gameOver", (result) => {
+    document.getElementById("gameOverMessage").innerText = result;
+    document.getElementById("gameOverPopup").classList.remove("hidden");
+});
+function closePopup() {
+    document.getElementById("gameOverPopup").classList.add("hidden");
+    location.reload();
+}
+
+socket.on("invalidMove",function(result){
+        console.log(result);
+});
+
+socket.on("error", function(error) {
+    showError(error.message || "Invalid Move!");
+});
+
+function showError(message) {
+    const errorDiv = document.getElementById("error-message");
+    errorDiv.textContent = "Invalid Move";
+    
+    // Show error message with animation
+    errorDiv.classList.remove("hidden", "opacity-0");
+    errorDiv.classList.add("opacity-100");
+
+    // Hide after 3 seconds
+    setTimeout(() => {
+        errorDiv.classList.add("opacity-0");
+        setTimeout(() => errorDiv.classList.add("hidden"), 300);
+    }, 3000);
+}
+
+socket.on("playerDisconnected", (message) => {
+    showDisconnectPopup(message);
+});
+
+socket.on("allowReset", () => {
+    if (!playerRole) { // Only spectators get the reset button
+        document.querySelector(".disconnect-popup").innerHTML += `
+            <button onclick="resetGame()">Reset Game</button>
+        `;
+    }
+});
+
+function showDisconnectPopup(message) {
+    let popup = document.createElement("div");
+    popup.className = "disconnect-popup";
+    popup.innerHTML = `
+        <p>${message}</p>
+        <button onclick="closePopup()">Close</button>
+    `;
+    document.body.appendChild(popup);
+}
+
+function closePopup() {
+    document.querySelector(".disconnect-popup").remove();
+}
+
+function resetGame() {
+    socket.emit("resetGame");
+}
+
+socket.on("gameReset", () => {
+    location.reload();
+});
+
 renderBoard();

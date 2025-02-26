@@ -34,10 +34,24 @@ io.on("connection", function (socket) {
     socket.on("disconnect", function () {
         if (socket.id === player.white) {
             delete player.white;
+            io.emit("playerDisconnected", "⚫ Black wins! White disconnected.");
+            io.to(player.black).emit("spectatorRole");
         } else if (socket.id === player.black) {
             delete player.black;
+            io.emit("playerDisconnected", "⚪ White wins! Black disconnected.");
+            io.to(player.white).emit("spectatorRole");
         }
+        io.emit("allowReset");
     });
+    
+    socket.on("resetGame", () => {
+        // Reset game state
+        player.white = null;
+        player.black = null;
+        chess.reset();
+        io.emit("gameReset");
+    });
+    
 
     socket.on("move", function (move) {
         try {
@@ -65,9 +79,8 @@ io.on("connection", function (socket) {
                 socket.emit("invalidMove", move);
             }
         } catch (error) {
-            console.error(error);
-            socket.emit("error", error);
-        }
+            socket.emit("error", { message:error});
+        }        
     });
 });
 
