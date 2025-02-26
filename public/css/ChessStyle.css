@@ -1,0 +1,52 @@
+.chessBoard {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    width: min(90vw, 90vh); /* Keeps it square */
+    max-width: 600px;
+    aspect-ratio: 1 / 1;
+}
+
+/* Light and dark squares */
+.square {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.square.light {
+    background-color: #f0d9b5; /* Light brown */
+}
+
+.square.dark {
+    background-color: #b58863; /* Dark brown */
+}
+
+/* Piece styling */
+.piece {
+    font-size: 36px;
+    cursor: grab;
+    position: relative; /* Change this to absolute if needed */
+}
+
+
+/* White & Black piece colors */
+.piece.white {
+    color: white;
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+}
+
+.piece.black {
+    color: black;
+}
+
+/* Rotate board for Black player */
+.flipped {
+    transform: rotate(180deg);
+}
+
+.flipped .piece {
+    transform: rotate(180deg);
+}
