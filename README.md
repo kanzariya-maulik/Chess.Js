@@ -82,12 +82,6 @@ Contributions are welcome! 🚀 Feel free to fork, create a feature branch, and 
 
 ---
 
-## 📝 License
-
-This project is **MIT Licensed**. 📜
-
----
-
 ## 📬 Contact
 
 🔹 **Developer:** Maulik Kanzariya  
