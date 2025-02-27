@@ -189,7 +189,7 @@ function showDisconnectPopup(message) {
 }
 
 function closePopup() {
-    document.querySelector(".disconnect-popup").remove();
+    document.querySelector("#gameOverPopup").remove();
 }
 
 function resetGame() {
