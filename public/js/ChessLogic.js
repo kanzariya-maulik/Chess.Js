@@ -154,8 +154,12 @@ socket.on("error", function (error) {
 });
 
 function showError(message) {
+    console.log(message.length);
+    if(message || message.length == 0){
+        message = "Invalid move";
+    }
     const errorDiv = document.getElementById("error-message");
-    errorDiv.textContent = message;
+    errorDiv.textContent = message ? message:"Invalid Move";
     
     errorDiv.classList.remove("hidden", "opacity-0");
     errorDiv.classList.add("opacity-100");
